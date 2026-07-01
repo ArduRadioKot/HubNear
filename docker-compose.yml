@@ -1,0 +1,31 @@
+services:
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://dvizh:dvizh@db:5432/dvizh
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgis/postgis:18-3.6-alpine
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: dvizh
+      POSTGRES_USER: dvizh
+      POSTGRES_PASSWORD: dvizh
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
