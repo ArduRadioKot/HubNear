@@ -1,25 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Home,
   MessageCircle,
-  Map,
-  ScanLine,
   User,
   Settings,
   Search,
-  Heart,
-  MessageSquare,
-  Share2,
-  Bookmark,
-  ChevronRight,
-  Camera,
   Plus,
-  Minus,
-  Navigation,
   ArrowLeft,
   Eye,
   EyeOff,
   Bell,
+  Camera,
+  ChevronRight,
+  Clock,
+  MapPin,
+  Zap,
+  Timer,
 } from "lucide-react";
 import { useIsMobile } from "./components/ui/use-mobile";
 
@@ -30,7 +26,7 @@ type Screen =
   | "feed"
   | "profile"
   | "chats"
-  | "map";
+  | "create";
 
 const ACCENT = "#116F5F";
 const ACCENT_LIGHT = "#1a9e84";
@@ -46,10 +42,8 @@ function BottomNav({
   onNavigate: (s: Screen) => void;
 }) {
   const tabs: { id: Screen; Icon: typeof Home; label: string }[] = [
-    { id: "feed", Icon: Home, label: "Лента" },
+    { id: "feed", Icon: Home, label: "Сборы" },
     { id: "chats", Icon: MessageCircle, label: "Чаты" },
-    { id: "map", Icon: Map, label: "Карта" },
-    { id: "feed", Icon: ScanLine, label: "Скан" },
     { id: "profile", Icon: User, label: "Профиль" },
   ];
   return (
@@ -61,12 +55,11 @@ function BottomNav({
         paddingBottom: "env(safe-area-inset-bottom, 8px)",
       }}
     >
-      {tabs.map(({ id, Icon, label }, i) => {
-        const isActive = active === id && !(id === "feed" && i === 3);
-        const isScan = i === 3;
+      {tabs.map(({ id, Icon, label }) => {
+        const isActive = active === id;
         return (
           <button
-            key={i}
+            key={id}
             onClick={() => onNavigate(id)}
             style={{
               flex: 1,
@@ -81,23 +74,10 @@ function BottomNav({
               gap: 2,
             }}
           >
-            <div
-              style={{
-                width: isScan ? 40 : 24,
-                height: isScan ? 40 : 24,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: isScan ? "50%" : 0,
-                background: isScan ? ACCENT : "transparent",
-                marginBottom: isScan ? -2 : 0,
-              }}
-            >
-              <Icon
-                size={isScan ? 18 : 22}
-                color={isScan ? "#fff" : isActive ? ACCENT : "#9ca3af"}
-              />
-            </div>
+            <Icon
+              size={22}
+              color={isActive ? ACCENT : "#9ca3af"}
+            />
             <span
               style={{
                 fontSize: 10,
@@ -122,9 +102,8 @@ function SidebarNav({
   onNavigate: (s: Screen) => void;
 }) {
   const tabs: { id: Screen; Icon: typeof Home; label: string }[] = [
-    { id: "feed", Icon: Home, label: "Лента" },
+    { id: "feed", Icon: Home, label: "Сборы" },
     { id: "chats", Icon: MessageCircle, label: "Чаты" },
-    { id: "map", Icon: Map, label: "Карта" },
     { id: "profile", Icon: User, label: "Профиль" },
   ];
 
@@ -154,7 +133,7 @@ function SidebarNav({
           paddingLeft: 12,
         }}
       >
-        СНАПУС
+        dViz
       </h2>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -295,7 +274,7 @@ function WelcomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
             marginBottom: 12,
           }}
         >
-          ПРИВЕТ!
+          dViz
         </h1>
         <p
           style={{
@@ -306,7 +285,7 @@ function WelcomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
             maxWidth: isMobile ? "100%" : "500px",
           }}
         >
-          фраза крутая пафосная тут
+          Находи компанию для спорта и активностей рядом
         </p>
       </div>
 
@@ -633,46 +612,157 @@ function AuthScreen({
 
 // ── Feed screen ───────────────────────────────────────────────────────────────
 
-const POSTS = [
+type Event = {
+  id: string;
+  activity: string;
+  category: string;
+  time: string;
+  location: string;
+  needed: number;
+  current: number;
+  level: string;
+  deadline: string;
+  organizer: string;
+  avatar: string;
+  confirmed: boolean;
+  image?: string;
+};
+
+const CATEGORIES = [
+  "Все",
+  "Спорт",
+  "Игры",
+  "Культура",
+  "Прогулки",
+  "Еда",
+  "Обучение",
+  "Другое",
+];
+
+const EVENTS: Event[] = [
   {
-    user: "София Д.",
-    handle: "@sofia_dostoyevskaya",
-    avatar: "https://i.pravatar.cc/150?img=47",
-    image: "https://picsum.photos/seed/forest1/600/400",
-    caption: "Была сегодня в заповеднике «Лесной остров» с семьёй. Очень понравилось!",
-    likes: 24,
-    comments: 5,
-    time: "2 ч",
+    id: "1",
+    activity: "Волейбол",
+    category: "Спорт",
+    time: "Сегодня 19:00",
+    location: "Парк Горького",
+    needed: 12,
+    current: 8,
+    level: "Любительский",
+    deadline: "17:30",
+    organizer: "Алексей",
+    avatar: "https://i.pravatar.cc/150?img=11",
+    confirmed: false,
+    image: "https://picsum.photos/seed/volleyball1/600/400",
   },
   {
-    user: "Анна Л.",
-    handle: "@anna_loves_travel",
-    avatar: "https://i.pravatar.cc/150?img=5",
-    image: "https://picsum.photos/seed/mountain88/600/400",
-    caption: "Горы — это моя любовь навсегда. Ничего прекраснее не видела!",
-    likes: 61,
-    comments: 12,
-    time: "4 ч",
-  },
-  {
-    user: "Максим К.",
-    handle: "@maxim_photo",
+    id: "2",
+    activity: "Настольные игры",
+    category: "Игры",
+    time: "Сегодня 20:00",
+    location: "Кафе У Друзей",
+    needed: 6,
+    current: 4,
+    level: "Любой",
+    deadline: "18:00",
+    organizer: "Дмитрий",
     avatar: "https://i.pravatar.cc/150?img=15",
-    image: "https://picsum.photos/seed/lake22/600/400",
-    caption: "Тихое утро у озера. Именно такие моменты делают жизнь прекрасной.",
-    likes: 38,
-    comments: 7,
-    time: "6 ч",
+    confirmed: false,
+    image: "https://picsum.photos/seed/boardgames/600/400",
+  },
+  {
+    id: "3",
+    activity: "Прогулка в парке",
+    category: "Прогулки",
+    time: "Завтра 10:00",
+    location: "Парк Сокольники",
+    needed: 5,
+    current: 5,
+    level: "Любой",
+    deadline: "09:00",
+    organizer: "Мария",
+    avatar: "https://i.pravatar.cc/150?img=5",
+    confirmed: true,
+    image: "https://picsum.photos/seed/walkpark/600/400",
+  },
+  {
+    id: "4",
+    activity: "Кино",
+    category: "Культура",
+    time: "Сегодня 18:00",
+    location: "Киноцентр Октябрь",
+    needed: 4,
+    current: 2,
+    level: "Любой",
+    deadline: "16:00",
+    organizer: "Игорь",
+    avatar: "https://i.pravatar.cc/150?img=33",
+    confirmed: false,
+    image: "https://picsum.photos/seed/cinema/600/400",
+  },
+  {
+    id: "5",
+    activity: "Кофе и разговоры",
+    category: "Еда",
+    time: "Сегодня 15:00",
+    location: "Кофейня на Тверской",
+    needed: 3,
+    current: 1,
+    level: "Любой",
+    deadline: "14:00",
+    organizer: "Анна",
+    avatar: "https://i.pravatar.cc/150?img=9",
+    confirmed: false,
+  },
+  {
+    id: "6",
+    activity: "Английский клуб",
+    category: "Обучение",
+    time: "Завтра 19:00",
+    location: "Библиотека",
+    needed: 8,
+    current: 6,
+    level: "Средний",
+    deadline: "17:00",
+    organizer: "Елена",
+    avatar: "https://i.pravatar.cc/150?img=22",
+    confirmed: false,
+    image: "https://picsum.photos/seed/english/600/400",
   },
 ];
 
-function FeedScreen() {
-  const [liked, setLiked] = useState<Set<number>>(new Set());
-  const [saved, setSaved] = useState<Set<number>>(new Set());
+function FeedScreen({ onCreateClick }: { onCreateClick: () => void }) {
+  const [joined, setJoined] = useState<Set<string>>(new Set());
+  const [events, setEvents] = useState<Event[]>(EVENTS);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Все");
   const isMobile = useIsMobile();
 
+  const filteredEvents = events.filter(event => {
+    const matchesSearch = event.activity.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         event.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === "Все" || event.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const handleJoin = (eventId: string) => {
+    const nextJoined = new Set(joined);
+    if (nextJoined.has(eventId)) {
+      nextJoined.delete(eventId);
+      setEvents(events.map(e => 
+        e.id === eventId ? { ...e, current: e.current - 1, confirmed: e.current - 1 >= e.needed } : e
+      ));
+    } else {
+      nextJoined.add(eventId);
+      setEvents(events.map(e => 
+        e.id === eventId ? { ...e, current: e.current + 1, confirmed: e.current + 1 >= e.needed } : e
+      ));
+    }
+    setJoined(nextJoined);
+  };
+
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "#f0f2f5" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "f0f2f5" }}>
       {/* header */}
       <div
         style={{
@@ -684,191 +774,565 @@ function FeedScreen() {
           borderBottom: "1px solid #f3f4f6",
         }}
       >
-        {!isMobile && (
-          <h2 style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 200, fontSize: 28, color: ACCENT, letterSpacing: -0.5 }}>
-            СНАПУС
-          </h2>
-        )}
+        <h2 style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 200, fontSize: isMobile ? 22 : 28, color: ACCENT, letterSpacing: -0.5 }}>
+          dViz
+        </h2>
         <div style={{ display: "flex", gap: 16, marginLeft: isMobile ? 0 : "auto" }}>
           <button style={{ background: "none", border: "none", cursor: "pointer" }}>
             <Bell size={isMobile ? 22 : 24} color="#374151" />
           </button>
-          <button style={{ background: "none", border: "none", cursor: "pointer" }}>
-            <Camera size={isMobile ? 22 : 24} color="#374151" />
+          <button 
+            onClick={onCreateClick}
+            style={{
+              background: ACCENT,
+              border: "none",
+              borderRadius: "50%",
+              width: isMobile ? 40 : 44,
+              height: isMobile ? 40 : 44,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+            }}
+          >
+            <Plus size={isMobile ? 20 : 22} color="#fff" />
           </button>
         </div>
       </div>
 
-      {/* stories row */}
+      {/* search bar */}
       <div
         style={{
-          display: "flex",
-          gap: 12,
           padding: isMobile ? "12px 16px" : "16px 32px",
-          overflowX: "auto",
           background: "#fff",
           borderBottom: "1px solid #f3f4f6",
         }}
       >
-        {[
-          { avatar: "https://i.pravatar.cc/150?img=3", name: "Ты" },
-          { avatar: "https://i.pravatar.cc/150?img=9", name: "Рита" },
-          { avatar: "https://i.pravatar.cc/150?img=12", name: "Дима" },
-          { avatar: "https://i.pravatar.cc/150?img=22", name: "Катя" },
-          { avatar: "https://i.pravatar.cc/150?img=31", name: "Илья" },
-          { avatar: "https://i.pravatar.cc/150?img=45", name: "Оля" },
-        ].map((s, i) => (
-          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
-            <div
-              style={{
-                padding: 2,
-                borderRadius: "50%",
-                background: i === 0 ? "#e5e7eb" : `linear-gradient(135deg, ${ACCENT}, ${ACCENT_LIGHT})`,
-              }}
-            >
-              {i === 0 ? (
-                <div
-                  style={{
-                    width: 52, height: 52, borderRadius: "50%",
-                    background: ACCENT_MUTED, display: "flex",
-                    alignItems: "center", justifyContent: "center", border: "2px solid #fff",
-                  }}
-                >
-                  <Plus size={20} color={ACCENT} />
-                </div>
-              ) : (
-                <img src={s.avatar} style={{ width: 52, height: 52, borderRadius: "50%", border: "2px solid #fff", objectFit: "cover" }} alt={s.name} />
-              )}
-            </div>
-            <span style={{ fontSize: 11, fontFamily: "Nunito Sans, sans-serif", color: "#374151" }}>{s.name}</span>
-          </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: "#f3f4f6",
+            padding: "10px 14px",
+            borderRadius: 10,
+          }}
+        >
+          <Search size={isMobile ? 18 : 20} color="#9ca3af" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Поиск мероприятий..."
+            style={{
+              flex: 1,
+              background: "none",
+              border: "none",
+              outline: "none",
+              fontFamily: "Nunito Sans, sans-serif",
+              fontSize: 14,
+              color: "#374151",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* category filters */}
+      <div
+        style={{
+          padding: isMobile ? "8px 16px" : "12px 32px",
+          background: "#fff",
+          borderBottom: "1px solid #f3f4f6",
+          overflowX: "auto",
+          display: "flex",
+          gap: 8,
+        }}
+      >
+        {CATEGORIES.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            style={{
+              padding: isMobile ? "6px 14px" : "8px 16px",
+              borderRadius: 20,
+              background: selectedCategory === category ? ACCENT : "#f3f4f6",
+              border: "none",
+              color: selectedCategory === category ? "#fff" : "#374151",
+              fontFamily: "Nunito Sans, sans-serif",
+              fontSize: isMobile ? 13 : 14,
+              fontWeight: selectedCategory === category ? 600 : 400,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              transition: "all 0.2s",
+            }}
+          >
+            {category}
+          </button>
         ))}
       </div>
 
-      {/* posts — card format for mobile, tile grid for desktop */}
+      {/* events list */}
       <div
         className="keep-nunito"
         style={{
           flex: 1,
           overflowY: "auto",
           padding: isMobile ? "12px 14px" : "24px 32px",
-          display: "grid",
-          gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(280px, 1fr))",
-          gap: isMobile ? 14 : 20,
-          alignContent: "start",
+          display: isMobile ? "flex" : "grid",
+          flexDirection: isMobile ? "column" : "row",
+          gridTemplateColumns: isMobile ? undefined : "repeat(auto-fill, minmax(280px, 1fr))",
+          gap: isMobile ? 16 : 20,
+          alignContent: isMobile ? undefined : "start",
+          paddingBottom: isMobile ? 80 : 32,
         }}
       >
-        {POSTS.map((post, i) => (
-          <div
-            key={i}
-            style={{
-              borderRadius: 18,
-              overflow: "hidden",
-              position: "relative",
-              aspectRatio: isMobile ? "1 / 1.15" : "1 / 1.1",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
-              cursor: "pointer",
-            }}
-          >
-            {/* full-bleed image */}
-            <img
-              src={post.image}
-              alt="post"
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
-
-            {/* top gradient + author */}
+        {filteredEvents.map((event) => {
+          const isJoined = joined.has(event.id);
+          const spotsLeft = event.needed - event.current;
+          const progress = (event.current / event.needed) * 100;
+          
+          return (
             <div
+              key={event.id}
               style={{
-                position: "absolute",
-                top: 0, left: 0, right: 0,
-                padding: isMobile ? "12px 14px 40px" : "14px 16px 44px",
-                background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%)",
-                display: "flex",
-                alignItems: "center",
-                gap: 9,
+                borderRadius: 18,
+                overflow: "hidden",
+                position: "relative",
+                aspectRatio: isMobile ? "1 / 1.15" : "1 / 1.1",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+                cursor: "pointer",
+                width: isMobile ? "100%" : "auto",
+                flexShrink: 0,
               }}
             >
-              <img
-                src={post.avatar}
-                style={{ width: isMobile ? 34 : 38, height: isMobile ? 34 : 38, borderRadius: "50%", objectFit: "cover", border: "2px solid #fff" }}
-                alt={post.user}
-              />
-              <div>
-                <p style={{ fontFamily: "Nunito, sans-serif", fontWeight: 700, fontSize: isMobile ? 13 : 14, color: "#fff", margin: 0 }}>
-                  {post.user}
-                </p>
-                <p style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: isMobile ? 11 : 12, color: "rgba(255,255,255,0.75)", margin: 0 }}>
-                  {post.handle}
-                </p>
-              </div>
-            </div>
+              {/* full-bleed image or fallback */}
+              {event.image ? (
+                <img
+                  src={event.image}
+                  alt="event"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    background: `linear-gradient(135deg, ${ACCENT} 0%, ${ACCENT_LIGHT} 100%)`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span style={{ fontSize: 48, opacity: 0.3 }}>📅</span>
+                </div>
+              )}
 
-            {/* bottom gradient + caption + actions */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0, left: 0, right: 0,
-                padding: isMobile ? "40px 14px 14px" : "44px 16px 16px",
-                background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)",
-              }}
-            >
-              <p
+              {/* top gradient + activity + status */}
+              <div
                 style={{
-                  fontFamily: "Nunito Sans, sans-serif",
-                  fontSize: isMobile ? 13 : 14,
-                  color: "#fff",
-                  margin: "0 0 10px",
-                  lineHeight: 1.45,
+                  position: "absolute",
+                  top: 0, left: 0, right: 0,
+                  padding: isMobile ? "12px 14px 40px" : "14px 16px 44px",
+                  background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
                 }}
               >
-                {post.caption}
-              </p>
-              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <div>
+                  <h3 style={{ fontFamily: "Nunito, sans-serif", fontWeight: 800, fontSize: isMobile ? 16 : 18, color: "#fff", margin: "0 0 4px" }}>
+                    {event.activity}
+                  </h3>
+                  {event.confirmed && (
+                    <div style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                      background: "rgba(17, 111, 95, 0.9)",
+                      padding: "3px 8px",
+                      borderRadius: 12,
+                    }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
+                      <span style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: 11, color: "#fff", fontWeight: 600 }}>
+                        Подтверждено
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <img
+                  src={event.avatar}
+                  style={{ width: isMobile ? 32 : 36, height: isMobile ? 32 : 36, borderRadius: "50%", objectFit: "cover", border: "2px solid #fff" }}
+                  alt={event.organizer}
+                />
+              </div>
+
+              {/* bottom gradient + details + actions */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 0, left: 0, right: 0,
+                  padding: isMobile ? "40px 14px 14px" : "44px 16px 16px",
+                  background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)",
+                }}
+              >
+                {/* time & location */}
+                <div style={{ display: "flex", gap: 12, marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <Clock size={isMobile ? 14 : 16} color="#fff" />
+                    <span style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: isMobile ? 12 : 13, color: "#fff" }}>{event.time}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <MapPin size={isMobile ? 14 : 16} color="#fff" />
+                    <span style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: isMobile ? 12 : 13, color: "#fff" }}>{event.location}</span>
+                  </div>
+                </div>
+
+                {/* level & deadline */}
+                <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <Zap size={isMobile ? 14 : 16} color="#fff" />
+                    <span style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: isMobile ? 12 : 13, color: "rgba(255,255,255,0.9)" }}>{event.level}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <Timer size={isMobile ? 14 : 16} color="#fff" />
+                    <span style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: isMobile ? 12 : 13, color: "rgba(255,255,255,0.9)" }}>до {event.deadline}</span>
+                  </div>
+                </div>
+
+                {/* participants progress */}
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: isMobile ? 11 : 12, color: "rgba(255,255,255,0.85)" }}>
+                      {event.current}/{event.needed} участников
+                    </span>
+                    <span style={{ fontFamily: "Nunito, sans-serif", fontWeight: 700, fontSize: isMobile ? 11 : 12, color: spotsLeft <= 0 ? "#86efac" : "#fbbf24" }}>
+                      {spotsLeft <= 0 ? "Набор завершён" : `${spotsLeft} мест`}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      height: 6,
+                      background: "rgba(255,255,255,0.3)",
+                      borderRadius: 3,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${Math.min(progress, 100)}%`,
+                        background: event.confirmed ? "#86efac" : progress >= 100 ? "#22c55e" : ACCENT_LIGHT,
+                        borderRadius: 3,
+                        transition: "width 0.3s ease",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* join button */}
                 <button
-                  onClick={() => {
-                    const next = new Set(liked);
-                    next.has(i) ? next.delete(i) : next.add(i);
-                    setLiked(next);
-                  }}
+                  onClick={() => handleJoin(event.id)}
+                  disabled={spotsLeft <= 0 && !isJoined}
                   style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    display: "flex", alignItems: "center", gap: 5,
-                    color: liked.has(i) ? "#f87171" : "rgba(255,255,255,0.85)",
-                    fontFamily: "Nunito Sans, sans-serif", fontSize: isMobile ? 13 : 14,
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: 8,
+                    background: isJoined ? "rgba(255,255,255,0.2)" : spotsLeft <= 0 ? "rgba(255,255,255,0.15)" : ACCENT,
+                    border: isJoined ? "1px solid rgba(255,255,255,0.4)" : "none",
+                    color: "#fff",
+                    fontFamily: "Nunito, sans-serif",
+                    fontWeight: 700,
+                    fontSize: isMobile ? 13 : 14,
+                    cursor: spotsLeft <= 0 && !isJoined ? "not-allowed" : "pointer",
+                    transition: "all 0.2s",
                   }}
                 >
-                  <Heart size={isMobile ? 17 : 18} fill={liked.has(i) ? "#f87171" : "none"} color={liked.has(i) ? "#f87171" : "rgba(255,255,255,0.85)"} />
-                  {post.likes + (liked.has(i) ? 1 : 0)}
-                </button>
-                <button
-                  style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    display: "flex", alignItems: "center", gap: 5,
-                    color: "rgba(255,255,255,0.85)", fontFamily: "Nunito Sans, sans-serif", fontSize: isMobile ? 13 : 14,
-                  }}
-                >
-                  <MessageSquare size={isMobile ? 17 : 18} color="rgba(255,255,255,0.85)" />
-                  {post.comments}
-                </button>
-                <button style={{ background: "none", border: "none", cursor: "pointer" }}>
-                  <Share2 size={isMobile ? 17 : 18} color="rgba(255,255,255,0.85)" />
-                </button>
-                <div style={{ flex: 1 }} />
-                <button
-                  onClick={() => {
-                    const next = new Set(saved);
-                    next.has(i) ? next.delete(i) : next.add(i);
-                    setSaved(next);
-                  }}
-                  style={{ background: "none", border: "none", cursor: "pointer" }}
-                >
-                  <Bookmark size={isMobile ? 17 : 18} fill={saved.has(i) ? "#fff" : "none"} color="rgba(255,255,255,0.85)" />
+                  {isJoined ? "Отменить" : spotsLeft <= 0 ? "Мест нет" : "Присоединиться"}
                 </button>
               </div>
             </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Create Event screen ─────────────────────────────────────────────────────────
+
+function CreateEventScreen({ onNavigate, onCreate }: { onNavigate: (s: Screen) => void; onCreate: (event: Event) => void }) {
+  const [activity, setActivity] = useState("");
+  const [category, setCategory] = useState("Спорт");
+  const [time, setTime] = useState("");
+  const [location, setLocation] = useState("");
+  const [needed, setNeeded] = useState("");
+  const [level, setLevel] = useState("Любой");
+  const [deadline, setDeadline] = useState("");
+  const [image, setImage] = useState("");
+  const isMobile = useIsMobile();
+
+  const handleSubmit = () => {
+    if (!activity || !time || !location || !needed || !deadline) return;
+
+    const newEvent: Event = {
+      id: Date.now().toString(),
+      activity,
+      category,
+      time,
+      location,
+      needed: parseInt(needed),
+      current: 1,
+      level,
+      deadline,
+      organizer: "Вы",
+      avatar: "https://i.pravatar.cc/150?img=5",
+      confirmed: false,
+      image: image || undefined,
+    };
+
+    onCreate(newEvent);
+    onNavigate("feed");
+  };
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "#f9fafb" }}>
+      {/* header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: isMobile ? "16px 20px 12px" : "20px 32px 16px",
+          background: "#fff",
+          borderBottom: "1px solid #f3f4f6",
+        }}
+      >
+        <button
+          onClick={() => onNavigate("feed")}
+          style={{ background: "none", border: "none", cursor: "pointer" }}
+        >
+          <ArrowLeft size={isMobile ? 22 : 24} color="#374151" />
+        </button>
+        <h2 style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 200, fontSize: isMobile ? 22 : 28, color: ACCENT, letterSpacing: -0.5 }}>
+          Создать сбор
+        </h2>
+        <div style={{ width: isMobile ? 24 : 32 }} />
+      </div>
+
+      {/* form */}
+      <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "16px 20px" : "32px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 600, margin: "0 auto" }}>
+          <div>
+            <label style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: 14, color: "#374151", display: "block", marginBottom: 6 }}>
+              Активность *
+            </label>
+            <input
+              type="text"
+              value={activity}
+              onChange={(e) => setActivity(e.target.value)}
+              placeholder="Например: Волейбол"
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 10,
+                fontFamily: "Nunito Sans, sans-serif",
+                fontSize: 14,
+                outline: "none",
+                color: "#374151",
+                boxSizing: "border-box",
+              }}
+            />
           </div>
-        ))}
+
+          <div>
+            <label style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: 14, color: "#374151", display: "block", marginBottom: 6 }}>
+              Категория *
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 10,
+                fontFamily: "Nunito Sans, sans-serif",
+                fontSize: 14,
+                outline: "none",
+                color: "#374151",
+                boxSizing: "border-box",
+                background: "#fff",
+              }}
+            >
+              {CATEGORIES.filter(c => c !== "Все").map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: 14, color: "#374151", display: "block", marginBottom: 6 }}>
+              Время *
+            </label>
+            <input
+              type="text"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              placeholder="Например: Сегодня 19:00"
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 10,
+                fontFamily: "Nunito Sans, sans-serif",
+                fontSize: 14,
+                outline: "none",
+                color: "#374151",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: 14, color: "#374151", display: "block", marginBottom: 6 }}>
+              Место *
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Например: Парк Горького"
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 10,
+                fontFamily: "Nunito Sans, sans-serif",
+                fontSize: 14,
+                outline: "none",
+                color: "#374151",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: 14, color: "#374151", display: "block", marginBottom: 6 }}>
+              Нужно участников *
+            </label>
+            <input
+              type="number"
+              value={needed}
+              onChange={(e) => setNeeded(e.target.value)}
+              placeholder="Например: 12"
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 10,
+                fontFamily: "Nunito Sans, sans-serif",
+                fontSize: 14,
+                outline: "none",
+                color: "#374151",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: 14, color: "#374151", display: "block", marginBottom: 6 }}>
+              Уровень
+            </label>
+            <select
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 10,
+                fontFamily: "Nunito Sans, sans-serif",
+                fontSize: 14,
+                outline: "none",
+                color: "#374151",
+                boxSizing: "border-box",
+                background: "#fff",
+              }}
+            >
+              <option value="Любой">Любой</option>
+              <option value="Любительский">Любительский</option>
+              <option value="Средний">Средний</option>
+              <option value="Продвинутый">Продвинутый</option>
+            </select>
+          </div>
+
+          <div>
+            <label style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: 14, color: "#374151", display: "block", marginBottom: 6 }}>
+              Набор до *
+            </label>
+            <input
+              type="text"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              placeholder="Например: 17:30"
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 10,
+                fontFamily: "Nunito Sans, sans-serif",
+                fontSize: 14,
+                outline: "none",
+                color: "#374151",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontFamily: "Nunito Sans, sans-serif", fontSize: 14, color: "#374151", display: "block", marginBottom: 6 }}>
+              Ссылка на изображение (необязательно)
+            </label>
+            <input
+              type="text"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 10,
+                fontFamily: "Nunito Sans, sans-serif",
+                fontSize: 14,
+                outline: "none",
+                color: "#374151",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={!activity || !time || !location || !needed || !deadline}
+            style={{
+              marginTop: 8,
+              width: "100%",
+              padding: "14px",
+              borderRadius: 12,
+              background: !activity || !time || !location || !needed || !deadline ? "#e5e7eb" : ACCENT,
+              border: "none",
+              color: !activity || !time || !location || !needed || !deadline ? "#9ca3af" : "#fff",
+              fontFamily: "Montserrat, sans-serif",
+              fontWeight: 200,
+              fontSize: 16,
+              cursor: !activity || !time || !location || !needed || !deadline ? "not-allowed" : "pointer",
+            }}
+          >
+            Создать сбор
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1198,7 +1662,7 @@ function ChatsScreen() {
                 letterSpacing: -0.5,
               }}
             >
-              СНАПУС
+              dViz
             </h1>
           )}
           <button style={{ background: "none", border: "none", cursor: "pointer" }}>
@@ -1324,290 +1788,24 @@ function ChatsScreen() {
   );
 }
 
-// ── Map screen ────────────────────────────────────────────────────────────────
-
-function MapScreen() {
-  const isMobile = useIsMobile();
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 44.4500, lng: 34.1600 });
-  const [locationPermission, setLocationPermission] = useState<"granted" | "denied" | "prompt" | null>(null);
-
-  useEffect(() => {
-    // Request geolocation permission
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
-          setMapCenter({ lat: latitude, lng: longitude });
-          setLocationPermission("granted");
-        },
-        (error) => {
-          console.error("Geolocation error:", error);
-          setLocationPermission("denied");
-          // Use default Crimea location if permission denied
-          setMapCenter({ lat: 44.4500, lng: 34.1600 });
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
-      );
-    } else {
-      setLocationPermission("denied");
-    }
-  }, []);
-
-  // Calculate map bounds based on center
-  const bounds = {
-    minLat: mapCenter.lat - 0.04,
-    maxLat: mapCenter.lat + 0.04,
-    minLng: mapCenter.lng - 0.04,
-    maxLng: mapCenter.lng + 0.04,
-  };
-
-  // Convert lat/lng to percentage positions for pins
-  const latToPercent = (lat: number) => ((bounds.maxLat - lat) / (bounds.maxLat - bounds.minLat)) * 100;
-  const lngToPercent = (lng: number) => ((lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * 100;
-
-  return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-      {/* Permission status indicator */}
-      {locationPermission === "denied" && (
-        <div
-          style={{
-            position: "absolute",
-            top: 16,
-            left: 16,
-            right: 16,
-            background: "rgba(239, 68, 68, 0.9)",
-            color: "#fff",
-            padding: "12px 16px",
-            borderRadius: 12,
-            zIndex: 1000,
-            fontSize: 14,
-            fontFamily: "Nunito Sans, sans-serif",
-            backdropFilter: "blur(8px)",
-          }}
-        >
-          Геолокация отключена. Показана стандартная локация.
-        </div>
-      )}
-
-      {/* map */}
-      <div style={{ flex: 1, position: "relative", width: "100%", height: "100%" }}>
-        <iframe
-          title="map"
-          src={`https://www.openstreetmap.org/export/embed.html?bbox=${bounds.minLng}%2C${bounds.minLat}%2C${bounds.maxLng}%2C${bounds.maxLat}&layer=mapnik`}
-          style={{
-            width: "100%",
-            height: "100%",
-            border: 0,
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-          }}
-        >
-          {/* teal overlay tint */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(17, 111, 95, 0.08)",
-            }}
-          />
-
-          {/* pins */}
-          {/* {MAP_PINS.map((pin, i) => (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                top: `${latToPercent(pin.lat)}%`,
-                left: `${lngToPercent(pin.lng)}%`,
-                transform: "translate(-50%, -100%)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: 8,
-                  padding: isMobile ? "3px 7px" : "4px 10px",
-                  fontSize: isMobile ? 10 : 12,
-                  fontFamily: "Nunito Sans, sans-serif",
-                  fontWeight: 600,
-                  color: "#111827",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-                  whiteSpace: "nowrap",
-                  marginBottom: 2,
-                }}
-              >
-                {pin.label}
-              </div>
-              <MapPin size={isMobile ? 22 : 26} color={pin.color} fill={pin.color} style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }} />
-            </div>
-          ))} */}
-
-          {/* user pin */}
-          {userLocation && (
-            <div
-              style={{
-                position: "absolute",
-                top: `${latToPercent(userLocation.lat)}%`,
-                left: `${lngToPercent(userLocation.lng)}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <div
-                style={{
-                  width: isMobile ? 18 : 22,
-                  height: isMobile ? 18 : 22,
-                  borderRadius: "50%",
-                  background: "#3b82f6",
-                  border: "3px solid #fff",
-                  boxShadow: "0 0 0 6px rgba(59,130,246,0.2)",
-                }}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* top controls */}
-        <div
-          style={{
-            position: "absolute",
-            top: isMobile ? 16 : 24,
-            right: isMobile ? 12 : 24,
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-          }}
-        >
-          {[
-            { Icon: Navigation, label: "nav" },
-            { Icon: User, label: "user" },
-          ].map(({ Icon, label }) => (
-            <button
-              key={label}
-              style={{
-                width: isMobile ? 40 : 48,
-                height: isMobile ? 40 : 48,
-                borderRadius: 10,
-                background: "#fff",
-                border: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                cursor: "pointer",
-              }}
-            >
-              <Icon size={isMobile ? 18 : 20} color={ACCENT} />
-            </button>
-          ))}
-        </div>
-
-        {/* zoom controls */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: isMobile ? 80 : 100,
-            right: isMobile ? 12 : 24,
-            display: "flex",
-            flexDirection: "column",
-            gap: 0,
-            borderRadius: 10,
-            overflow: "hidden",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-          }}
-        >
-          <button
-            style={{
-              width: isMobile ? 40 : 48,
-              height: isMobile ? 40 : 48,
-              background: "#fff",
-              border: "none",
-              borderBottom: "1px solid #e5e7eb",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-            }}
-          >
-            <Plus size={isMobile ? 18 : 20} color="#374151" />
-          </button>
-          <button
-            style={{
-              width: isMobile ? 40 : 48,
-              height: isMobile ? 40 : 48,
-              background: "#fff",
-              border: "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-            }}
-          >
-            <Minus size={isMobile ? 18 : 20} color="#374151" />
-          </button>
-        </div>
-
-        {/* search bar */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: isMobile ? 16 : 24,
-            left: isMobile ? 16 : 24,
-            right: isMobile ? 64 : 80,
-            background: "#fff",
-            borderRadius: 12,
-            padding: isMobile ? "10px 14px" : "12px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-          }}
-        >
-          <Search size={isMobile ? 16 : 18} color="#9ca3af" />
-          <span
-            style={{
-              fontFamily: "Nunito Sans, sans-serif",
-              fontSize: isMobile ? 14 : 15,
-              color: "#9ca3af",
-            }}
-          >
-            Искать место...
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
 // ── Root App ──────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("welcome");
+  const [events, setEvents] = useState<Event[]>(EVENTS);
   const isMobile = useIsMobile();
 
-  const showNav = ["feed", "chats", "map", "profile"].includes(screen);
+  const showNav = ["feed", "chats", "profile"].includes(screen);
 
   const getActiveTab = (): Screen => {
     if (screen === "feed") return "feed";
     if (screen === "chats") return "chats";
-    if (screen === "map") return "map";
     if (screen === "profile") return "profile";
     return "feed";
+  };
+
+  const handleCreateEvent = (newEvent: Event) => {
+    setEvents([newEvent, ...events]);
   };
 
   return (
@@ -1626,10 +1824,10 @@ export default function App() {
           {screen === "welcome" && <WelcomeScreen onNavigate={setScreen} />}
           {screen === "register" && <AuthScreen mode="register" onNavigate={setScreen} />}
           {screen === "login" && <AuthScreen mode="login" onNavigate={setScreen} />}
-          {screen === "feed" && <FeedScreen />}
+          {screen === "feed" && <FeedScreen onCreateClick={() => setScreen("create")} />}
           {screen === "profile" && <ProfileScreen />}
           {screen === "chats" && <ChatsScreen />}
-          {screen === "map" && <MapScreen />}
+          {screen === "create" && <CreateEventScreen onNavigate={setScreen} onCreate={handleCreateEvent} />}
         </div>
 
         {showNav && (
