@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Activity, Camera, ChevronRight, Edit3, Lock, LogOut, MapPin, Plus, Settings, Trophy, X, type LucideIcon } from "lucide-react";
+import { Activity, Bell, Camera, ChevronRight, Edit3, Lock, LogOut, MapPin, Plus, Settings, Trophy, X, type LucideIcon } from "lucide-react";
 import { useIsMobile } from "../components/ui/use-mobile";
 import { ACCENT, ACCENT_LIGHT, ACCENT_MUTED } from "../theme";
 import type { Event, Place, Screen, UserProfile } from "../types";
@@ -25,6 +25,9 @@ export function ProfileScreen({
   profile,
   events,
   joinedEventIds,
+  onViewFriendProfile,
+  friendsCount,
+  onNavigateToFriends,
 }: {
   onNavigate: (s: Screen) => void;
   myPlaces: Place[];
@@ -33,6 +36,9 @@ export function ProfileScreen({
   profile: UserProfile;
   events?: Event[];
   joinedEventIds?: Set<string>;
+  onViewFriendProfile?: (friend: { name: string; avatar: string }) => void;
+  friendsCount?: number;
+  onNavigateToFriends?: () => void;
 }) {
   const isMobile = useIsMobile();
 
@@ -74,7 +80,7 @@ export function ProfileScreen({
       <div style={{ background: `linear-gradient(160deg, ${ACCENT} 0%, ${ACCENT_LIGHT} 100%)`, padding: isMobile ? "44px 20px 20px" : "60px 32px 32px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, position: "relative" }}>
         <div style={{ position: "absolute", top: isMobile ? 46 : 60, right: isMobile ? 20 : 32, display: "flex", gap: 8 }}>
           <button onClick={() => onNavigate("notifications")} style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-            <Activity size={16} color="rgba(255,255,255,0.85)" />
+            <Bell size={16} color="rgba(255,255,255,0.85)" />
           </button>
           <button onClick={() => onNavigate("settings")} style={{ background: "none", border: "none", cursor: "pointer" }}>
             <Settings size={isMobile ? 22 : 24} color="rgba(255,255,255,0.8)" />
@@ -92,11 +98,18 @@ export function ProfileScreen({
         <p style={{ fontFamily: "Montserrat, sans-serif", fontSize: isMobile ? 13 : 14, color: "rgba(255,255,255,0.75)", margin: 0 }}>@{profile.username}</p>
 
         <div style={{ display: "flex", gap: isMobile ? 24 : 32, marginTop: 8 }}>
-          {[{ label: "Сборы", val: "12" }, { label: "Друзья", val: "124" }, { label: "Участников", val: "84" }].map((s) => (
-            <div key={s.label} style={{ textAlign: "center" }}>
-              <p style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 800, fontSize: isMobile ? 18 : 20, color: "#fff", margin: 0 }}>{s.val}</p>
-              <p style={{ fontFamily: "Montserrat, sans-serif", fontSize: isMobile ? 11 : 12, color: "rgba(255,255,255,0.7)", margin: 0 }}>{s.label}</p>
-            </div>
+          {[{ label: "Сборы", val: "12", onClick: undefined }, { label: "Друзья", val: friendsCount?.toString() ?? "124", onClick: onNavigateToFriends }, { label: "Участников", val: "84", onClick: undefined }].map((s) => (
+            s.onClick ? (
+              <button key={s.label} onClick={s.onClick} style={{ textAlign: "center", border: "none", background: "none", cursor: "pointer", padding: 0 }}>
+                <p style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 800, fontSize: isMobile ? 18 : 20, color: "#fff", margin: 0 }}>{s.val}</p>
+                <p style={{ fontFamily: "Montserrat, sans-serif", fontSize: isMobile ? 11 : 12, color: "rgba(255,255,255,0.7)", margin: 0 }}>{s.label}</p>
+              </button>
+            ) : (
+              <div key={s.label} style={{ textAlign: "center" }}>
+                <p style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 800, fontSize: isMobile ? 18 : 20, color: "#fff", margin: 0 }}>{s.val}</p>
+                <p style={{ fontFamily: "Montserrat, sans-serif", fontSize: isMobile ? 11 : 12, color: "rgba(255,255,255,0.7)", margin: 0 }}>{s.label}</p>
+              </div>
+            )
           ))}
         </div>
       </div>
@@ -121,15 +134,19 @@ export function ProfileScreen({
         <Section title="Друзья" isMobile={isMobile}>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {FRIENDS.map((f) => (
-              <div key={f.name} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div
+                key={f.name}
+                onClick={() => onViewFriendProfile?.(f)}
+                style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", cursor: "pointer", padding: 0 }}
+              >
                 <img src={f.avatar} style={{ width: isMobile ? 44 : 48, height: isMobile ? 44 : 48, borderRadius: "50%", objectFit: "cover", border: `2px solid ${ACCENT}`, flexShrink: 0 }} alt={f.name} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 600, fontSize: isMobile ? 13 : 14, color: "#111827" }}>{f.name}</span>
                   <p style={{ fontFamily: "Montserrat, sans-serif", fontSize: isMobile ? 11 : 12, color: "#6b7280", margin: "1px 0 0" }}>идёт на «{f.event}» &middot; {f.time}</p>
                 </div>
-                <button style={{ background: ACCENT_MUTED, border: "none", borderRadius: 8, padding: "6px 12px", fontFamily: "Montserrat, sans-serif", fontSize: 12, color: ACCENT, cursor: "pointer", fontWeight: 600, whiteSpace: "nowrap" }}>
+                <span style={{ background: ACCENT_MUTED, borderRadius: 8, padding: "6px 12px", fontFamily: "Montserrat, sans-serif", fontSize: 12, color: ACCENT, fontWeight: 600, whiteSpace: "nowrap" }}>
                   Позвать
-                </button>
+                </span>
               </div>
             ))}
           </div>

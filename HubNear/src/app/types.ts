@@ -10,7 +10,10 @@ export type Screen =
   | "notifications"
   | "edit-profile"
   | "change-password"
-  | "visited";
+  | "visited"
+  | "chat-participants"
+  | "other-profile"
+  | "friends";
 
 export type UserProfile = {
   name: string;
@@ -59,6 +62,20 @@ export type Place = {
   id: string;
   name: string;
   img: string;
+};
+
+export type Friend = {
+  id: string;
+  name: string;
+  avatar: string;
+  mutualEvents?: number;
+};
+
+export type ChatParticipant = {
+  id: string;
+  name: string;
+  avatar: string;
+  role?: "organizer" | "admin" | "member";
 };
 
 export type NotificationItem = {

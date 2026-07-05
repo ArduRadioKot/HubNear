@@ -1,20 +1,28 @@
-import { Send, ArrowLeft } from "lucide-react";
+import { Send, ArrowLeft, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useIsMobile } from "../components/ui/use-mobile";
 import { ACCENT, ACCENT_LIGHT } from "../theme";
-import type { ChatItem, Message } from "../types";
+import type { ChatItem, ChatParticipant, Message, Screen } from "../types";
 
 export function ChatsScreen({
   chats,
   messages,
   onSendMessage,
+  onNavigate,
+  participants,
+  onViewParticipants,
+  initialActiveChatId,
 }: {
   chats: ChatItem[];
   messages: Message[];
   onSendMessage: (chatId: string, text: string) => void;
+  onNavigate: (s: Screen) => void;
+  participants?: ChatParticipant[];
+  onViewParticipants?: (chatId: string) => void;
+  initialActiveChatId?: string;
 }) {
   const isMobile = useIsMobile();
-  const [activeChatId, setActiveChatId] = useState(chats[0]?.id ?? "");
+  const [activeChatId, setActiveChatId] = useState(initialActiveChatId || (chats[0]?.id ?? ""));
   const [draft, setDraft] = useState("");
 
   const activeChat = chats.find((chat) => chat.id === activeChatId) ?? chats[0];
@@ -112,10 +120,18 @@ export function ChatsScreen({
                 </button>
               )}
               <img src={activeChat.avatar} style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} alt={activeChat.name} />
-              <div>
+              <div style={{ flex: 1 }}>
                 <p style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 700, fontSize: 15, margin: 0, color: "#111827" }}>{activeChat.name}</p>
                 <p style={{ fontFamily: "Montserrat, sans-serif", fontSize: 12, margin: 0, color: "#9ca3af" }}>{activeChat.group ? "Групповой чат" : "В сети"}</p>
               </div>
+              {activeChat.group && onViewParticipants && (
+                <button
+                  onClick={() => onViewParticipants(activeChat.id)}
+                  style={{ background: "#f3f4f6", border: "none", borderRadius: 8, padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#374151", fontFamily: "Montserrat, sans-serif", fontWeight: 600, whiteSpace: "nowrap" }}
+                >
+                  <Users size={15} /> Участники
+                </button>
+              )}
             </div>
 
             <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "12px" : "16px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
