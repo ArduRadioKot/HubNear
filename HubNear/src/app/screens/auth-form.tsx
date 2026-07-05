@@ -152,7 +152,7 @@ export function AuthScreen({
               marginTop: 8,
               width: "100%",
               padding: "14px",
-              borderRadius: 12,
+              borderRadius: 8,
               background: ACCENT,
               border: "none",
               color: "#fff",

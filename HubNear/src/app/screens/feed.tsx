@@ -11,10 +11,20 @@ export function FeedScreen({
   events,
   onEventsChange,
   onCreateClick,
+  onJoinEvent,
+  onLeaveEvent,
+  unreadNotifications,
+  onNotificationsClick,
+  userName,
 }: {
   events: Event[];
   onEventsChange: (events: Event[]) => void;
   onCreateClick: () => void;
+  onJoinEvent?: (event: Event) => void;
+  onLeaveEvent?: (eventId: string) => void;
+  unreadNotifications?: number;
+  onNotificationsClick?: () => void;
+  userName?: string;
 }) {
   const [joined, setJoined] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,12 +44,12 @@ export function FeedScreen({
 
   const handleJoin = (eventId: string) => {
     const nextJoined = new Set(joined);
+    const isJoining = !nextJoined.has(eventId);
 
     const nextEvents = events.map((event) => {
       if (event.id !== eventId) return event;
 
-      const isJoined = nextJoined.has(eventId);
-      const nextCurrent = isJoined ? event.current - 1 : event.current + 1;
+      const nextCurrent = isJoining ? event.current + 1 : event.current - 1;
 
       return {
         ...event,
@@ -48,10 +58,13 @@ export function FeedScreen({
       };
     });
 
-    if (nextJoined.has(eventId)) {
-      nextJoined.delete(eventId);
-    } else {
+    if (isJoining) {
       nextJoined.add(eventId);
+      const event = events.find((e) => e.id === eventId);
+      if (event && onJoinEvent) onJoinEvent(event);
+    } else {
+      nextJoined.delete(eventId);
+      if (onLeaveEvent) onLeaveEvent(eventId);
     }
 
     setJoined(nextJoined);
@@ -111,11 +124,16 @@ export function FeedScreen({
             letterSpacing: -0.5,
           }}
         >
-          dViz
+          DeVIZ
         </h2>
         <div style={{ display: "flex", gap: 16, marginLeft: isMobile ? 0 : "auto" }}>
-          <button style={{ background: "none", border: "none", cursor: "pointer" }}>
+          <button onClick={onNotificationsClick} style={{ background: "none", border: "none", cursor: "pointer", position: "relative" }}>
             <Bell size={isMobile ? 22 : 24} color="#374151" />
+            {unreadNotifications && unreadNotifications > 0 ? (
+              <div style={{ position: "absolute", top: -4, right: -4, background: "#ef4444", borderRadius: "50%", width: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#fff", lineHeight: 1 }}>
+                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+              </div>
+            ) : null}
           </button>
           <button
             onClick={onCreateClick}
@@ -150,7 +168,7 @@ export function FeedScreen({
             gap: 8,
             background: "#f3f4f6",
             padding: "10px 14px",
-            borderRadius: 10,
+            borderRadius: 8,
           }}
         >
           <Search size={isMobile ? 18 : 20} color="#9ca3af" />
@@ -188,7 +206,7 @@ export function FeedScreen({
             onClick={() => setSelectedCategory(category)}
             style={{
               padding: isMobile ? "6px 14px" : "8px 16px",
-              borderRadius: 20,
+              borderRadius: 10,
               background: selectedCategory === category ? ACCENT : "#f3f4f6",
               border: "none",
               color: selectedCategory === category ? "#fff" : "#374151",
@@ -204,43 +222,7 @@ export function FeedScreen({
         ))}
       </div>
 
-      <div
-        style={{
-          padding: isMobile ? "6px 16px" : "8px 32px",
-          background: "#fff",
-          borderBottom: "1px solid #f3f4f6",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          overflowX: "auto",
-        }}
-      >
-        <span style={{ fontFamily: "Montserrat, sans-serif", fontSize: 12, color: "#6b7280", whiteSpace: "nowrap" }}>Рядом:</span>
-        {[
-          { label: "Все", value: null },
-          { label: "≤ 1 км", value: 1 },
-          { label: "≤ 2 км", value: 2 },
-          { label: "≤ 5 км", value: 5 },
-        ].map((opt) => (
-          <button
-            key={opt.label}
-            onClick={() => setMaxDistance(opt.value)}
-            style={{
-              padding: "4px 12px",
-              borderRadius: 14,
-              background: maxDistance === opt.value ? ACCENT : "#f3f4f6",
-              border: "none",
-              color: maxDistance === opt.value ? "#fff" : "#374151",
-              fontFamily: "Montserrat, sans-serif",
-              fontSize: 12,
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
+
 
       <div
         style={{
@@ -271,7 +253,7 @@ export function FeedScreen({
             >
             <div
               style={{
-                borderRadius: 18,
+                borderRadius: 12,
                 overflow: "hidden",
                 position: "relative",
                 aspectRatio: isMobile ? "1 / 1.15" : "1 / 1.1",
@@ -325,7 +307,7 @@ export function FeedScreen({
                       gap: 4,
                       background: "rgba(17, 111, 95, 0.9)",
                       padding: "3px 8px",
-                      borderRadius: 12,
+                      borderRadius: 8,
                     }}>
                       <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
                       <span style={{ fontFamily: "Montserrat, sans-serif", fontSize: 11, color: "#fff", fontWeight: 600 }}>
@@ -359,7 +341,7 @@ export function FeedScreen({
                   <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                     <MapPin size={isMobile ? 14 : 16} color="#fff" />
                     <span style={{ fontFamily: "Montserrat, sans-serif", fontSize: isMobile ? 12 : 13, color: "#fff" }}>{event.location}</span>
-                    {event.distance !== undefined && (
+                    {!isMobile && event.distance !== undefined && (
                       <span style={{ fontFamily: "Montserrat, sans-serif", fontSize: isMobile ? 10 : 11, color: "rgba(255,255,255,0.7)", marginLeft: 2 }}>
                         {formatDistance(event.distance)}
                       </span>
@@ -393,7 +375,7 @@ export function FeedScreen({
                     style={{
                       height: 6,
                       background: "rgba(255,255,255,0.3)",
-                      borderRadius: 3,
+                      borderRadius: 2,
                       overflow: "hidden",
                     }}
                   >
@@ -402,32 +384,49 @@ export function FeedScreen({
                         height: "100%",
                         width: `${Math.min(progress, 100)}%`,
                         background: event.confirmed ? "#86efac" : progress >= 100 ? "#22c55e" : ACCENT_LIGHT,
-                        borderRadius: 3,
+borderRadius: 2,
                         transition: "width 0.3s ease",
                       }}
                     />
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handleJoin(event.id)}
-                  disabled={spotsLeft <= 0 && !isJoined}
-                  style={{
+                {event.organizer === userName ? (
+                  <div style={{
                     width: "100%",
                     padding: "10px",
                     borderRadius: 8,
-                    background: isJoined ? "rgba(255,255,255,0.2)" : spotsLeft <= 0 ? "rgba(255,255,255,0.15)" : ACCENT,
-                    border: isJoined ? "1px solid rgba(255,255,255,0.4)" : "none",
-                    color: "#fff",
+                    background: "rgba(255,255,255,0.15)",
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    color: "rgba(255,255,255,0.8)",
                     fontFamily: "Montserrat, sans-serif",
-                    fontWeight: 700,
+                    fontWeight: 600,
                     fontSize: isMobile ? 13 : 14,
-                    cursor: spotsLeft <= 0 && !isJoined ? "not-allowed" : "pointer",
-                    transition: "all 0.2s",
-                  }}
-                >
-                  {isJoined ? "Отменить" : spotsLeft <= 0 ? "Мест нет" : "Присоединиться"}
-                </button>
+                    textAlign: "center",
+                  }}>
+                    Ваше мероприятие
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleJoin(event.id)}
+                    disabled={spotsLeft <= 0 && !isJoined}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: 8,
+                      background: isJoined ? "rgba(255,255,255,0.2)" : spotsLeft <= 0 ? "rgba(255,255,255,0.15)" : ACCENT,
+                      border: isJoined ? "1px solid rgba(255,255,255,0.4)" : "none",
+                      color: "#fff",
+                      fontFamily: "Montserrat, sans-serif",
+                      fontWeight: 700,
+                      fontSize: isMobile ? 13 : 14,
+                      cursor: spotsLeft <= 0 && !isJoined ? "not-allowed" : "pointer",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    {isJoined ? "Отменить" : spotsLeft <= 0 ? "Мест нет" : "Присоединиться"}
+                  </button>
+                )}
               </div>
             </div>
           </div>

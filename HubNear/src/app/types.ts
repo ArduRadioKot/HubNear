@@ -6,7 +6,17 @@ export type Screen =
   | "profile"
   | "chats"
   | "create"
-  | "settings";
+  | "settings"
+  | "notifications"
+  | "edit-profile"
+  | "change-password"
+  | "visited";
+
+export type UserProfile = {
+  name: string;
+  username: string;
+  avatar: string;
+};
 
 export type Event = {
   id: string;
@@ -43,4 +53,19 @@ export type Message = {
   fromMe: boolean;
   text: string;
   time: string;
+};
+
+export type Place = {
+  id: string;
+  name: string;
+  img: string;
+};
+
+export type NotificationItem = {
+  id: string;
+  title: string;
+  body: string;
+  time: string;
+  read: boolean;
+  type: "quorum" | "deadline" | "join" | "system";
 };

@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'pwa-icon.svg'],
       manifest: {
-        name: 'dViz — HubNear',
-        short_name: 'dViz',
+        name: 'DeVIZ — HubNear',
+        short_name: 'DeVIZ',
         description: 'Мобильный сервис для быстрых сборов на активности рядом',
         start_url: '/',
         display: 'standalone',

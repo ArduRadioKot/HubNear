@@ -94,7 +94,7 @@ export function SidebarNav({
           paddingLeft: 12,
         }}
       >
-        dViz
+        DeVIZ
       </h2>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -110,7 +110,7 @@ export function SidebarNav({
                 alignItems: "center",
                 gap: 12,
                 padding: "12px 16px",
-                borderRadius: 12,
+                borderRadius: 8,
                 background: isActive ? ACCENT_MUTED : "transparent",
                 border: "none",
                 cursor: "pointer",
@@ -143,7 +143,7 @@ export function SidebarNav({
           alignItems: "center",
           gap: 12,
           padding: "12px 16px",
-          borderRadius: 12,
+          borderRadius: 8,
           background: active === "settings" ? ACCENT_MUTED : "transparent",
           border: "none",
           cursor: "pointer",

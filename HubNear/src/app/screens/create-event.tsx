@@ -110,7 +110,7 @@ export function CreateEventScreen({
                 }}
               >
                 {filePreview ? (
-                  <img src={filePreview} alt="preview" style={{ height: 36, borderRadius: 6, objectFit: "cover" }} />
+                  <img src={filePreview} alt="preview" style={{ height: 36, borderRadius: 8, objectFit: "cover" }} />
                 ) : (
                   <Upload size={16} />
                 )}
@@ -130,7 +130,7 @@ export function CreateEventScreen({
             )}
           </Field>
 
-          <button onClick={handleSubmit} disabled={!activity || !time || !location || !needed || !deadline} style={{ marginTop: 8, width: "100%", padding: "14px", borderRadius: 12, background: !activity || !time || !location || !needed || !deadline ? "#e5e7eb" : ACCENT, border: "none", color: !activity || !time || !location || !needed || !deadline ? "#9ca3af" : "#fff", fontFamily: "Montserrat, sans-serif", fontWeight: 200, fontSize: 16, cursor: !activity || !time || !location || !needed || !deadline ? "not-allowed" : "pointer" }}>Создать сбор</button>
+          <button onClick={handleSubmit} disabled={!activity || !time || !location || !needed || !deadline} style={{ marginTop: 8, width: "100%", padding: "14px", borderRadius: 8, background: !activity || !time || !location || !needed || !deadline ? "#e5e7eb" : ACCENT, border: "none", color: !activity || !time || !location || !needed || !deadline ? "#9ca3af" : "#fff", fontFamily: "Montserrat, sans-serif", fontWeight: 200, fontSize: 16, cursor: !activity || !time || !location || !needed || !deadline ? "not-allowed" : "pointer" }}>Создать сбор</button>
         </div>
       </div>
     </div>

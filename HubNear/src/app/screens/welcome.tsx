@@ -66,7 +66,7 @@ export function WelcomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void 
             marginBottom: 12,
           }}
         >
-          dViz
+          DeVIZ
         </h1>
         <p
           style={{
@@ -95,7 +95,7 @@ export function WelcomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void 
           style={{
             width: "100%",
             padding: "15px",
-            borderRadius: 14,
+            borderRadius: 8,
             background: "rgba(255,255,255,0.25)",
             border: "1.5px solid rgba(255,255,255,0.5)",
             color: "#fff",
@@ -114,7 +114,7 @@ export function WelcomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void 
           style={{
             width: "100%",
             padding: "15px",
-            borderRadius: 14,
+            borderRadius: 8,
             background: "rgba(255,255,255,0.15)",
             border: "1.5px solid rgba(255,255,255,0.35)",
             color: "#fff",

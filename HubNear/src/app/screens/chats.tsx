@@ -1,138 +1,53 @@
-import { Search, Settings, Send, ArrowLeft } from "lucide-react";
+import { Send, ArrowLeft } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useIsMobile } from "../components/ui/use-mobile";
 import { ACCENT, ACCENT_LIGHT } from "../theme";
+import type { ChatItem, Message } from "../types";
 
-type ChatItem = {
-  id: string;
-  name: string;
-  avatar: string;
-  last: string;
-  time: string;
-  unread: number;
-  group: boolean;
-};
-
-type Message = {
-  id: string;
-  chatId: string;
-  fromMe: boolean;
-  text: string;
-  time: string;
-};
-
-const CHATS: ChatItem[] = [
-  {
-    id: "devs",
-    name: "Разработчики",
-    avatar: "https://i.pravatar.cc/150?img=68",
-    last: "Привет! Добро пожаловать!",
-    time: "12:10",
-    unread: 1,
-    group: true,
-  },
-  {
-    id: "rita",
-    name: "Рита Смирнова",
-    avatar: "https://i.pravatar.cc/150?img=9",
-    last: "Увидимся завтра?",
-    time: "11:30",
-    unread: 0,
-    group: false,
-  },
-  {
-    id: "dima",
-    name: "Дима Козлов",
-    avatar: "https://i.pravatar.cc/150?img=11",
-    last: "Отличная идея!",
-    time: "Вчера",
-    unread: 3,
-    group: false,
-  },
-  {
-    id: "hike",
-    name: "Поход в горы",
-    avatar: "https://i.pravatar.cc/150?img=44",
-    last: "Кто берёт палатку?",
-    time: "Вчера",
-    unread: 7,
-    group: true,
-  },
-];
-
-const MESSAGES: Message[] = [
-  { id: "m1", chatId: "devs", fromMe: false, text: "Привет! Добро пожаловать в чат", time: "12:01" },
-  { id: "m2", chatId: "devs", fromMe: true, text: "Спасибо! Когда ближайший сбор?", time: "12:03" },
-  { id: "m3", chatId: "devs", fromMe: false, text: "Сегодня в 19:00 волейбол, парк Горького", time: "12:04" },
-  { id: "m4", chatId: "rita", fromMe: false, text: "Увидимся завтра?", time: "11:30" },
-  { id: "m5", chatId: "dima", fromMe: false, text: "Отличная идея!", time: "Вчера" },
-  { id: "m6", chatId: "hike", fromMe: false, text: "Кто берёт палатку?", time: "Вчера" },
-];
-
-export function ChatsScreen() {
+export function ChatsScreen({
+  chats,
+  messages,
+  onSendMessage,
+}: {
+  chats: ChatItem[];
+  messages: Message[];
+  onSendMessage: (chatId: string, text: string) => void;
+}) {
   const isMobile = useIsMobile();
-  const [tab, setTab] = useState<"chats" | "calls">("chats");
-  const [activeChatId, setActiveChatId] = useState(CHATS[0]?.id ?? "");
+  const [activeChatId, setActiveChatId] = useState(chats[0]?.id ?? "");
   const [draft, setDraft] = useState("");
 
-  const activeChat = CHATS.find((chat) => chat.id === activeChatId) ?? CHATS[0];
-  const messages = useMemo(
-    () => MESSAGES.filter((message) => message.chatId === activeChat?.id),
-    [activeChat?.id],
+  const activeChat = chats.find((chat) => chat.id === activeChatId) ?? chats[0];
+  const activeMessages = useMemo(
+    () => messages.filter((m) => m.chatId === activeChat?.id),
+    [messages, activeChat?.id],
   );
 
   const showDialog = !isMobile || Boolean(activeChatId);
   const showList = !isMobile || !activeChatId;
+
+  const handleSend = () => {
+    if (!draft.trim() || !activeChat) return;
+    onSendMessage(activeChat.id, draft.trim());
+    setDraft("");
+  };
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <div
         style={{
           background: `linear-gradient(160deg, ${ACCENT} 0%, ${ACCENT_LIGHT} 100%)`,
-          padding: isMobile ? "48px 20px 24px" : "24px 24px 18px",
-          borderBottomLeftRadius: isMobile ? 28 : 0,
-          borderBottomRightRadius: isMobile ? 28 : 0,
-          boxShadow: "0 4px 16px rgba(17,111,95,0.25)",
+          padding: isMobile ? "44px 20px 12px" : "20px 24px 12px",
+          borderBottomLeftRadius: isMobile ? 20 : 0,
+          borderBottomRightRadius: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          <button style={{ background: "none", border: "none", cursor: "pointer" }}>
-            <Settings size={isMobile ? 22 : 24} color="#fff" />
-          </button>
-          <h1 style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 200, fontSize: isMobile ? 24 : 28, color: "#fff", margin: 0, letterSpacing: -0.5 }}>Чаты</h1>
-          <button style={{ background: "none", border: "none", cursor: "pointer" }}>
-            <Search size={isMobile ? 22 : 24} color="#fff" />
-          </button>
-        </div>
-
-        <div style={{ display: "flex", background: "rgba(255,255,255,0.2)", borderRadius: 12, padding: 3, maxWidth: 280 }}>
-          {(["chats", "calls"] as const).map((name) => (
-            <button
-              key={name}
-              onClick={() => setTab(name)}
-              style={{
-                flex: 1,
-                padding: isMobile ? "8px" : "9px",
-                borderRadius: 10,
-                background: tab === name ? "#fff" : "transparent",
-                border: "none",
-                color: tab === name ? ACCENT : "rgba(255,255,255,0.85)",
-                fontFamily: "Montserrat, sans-serif",
-                fontWeight: 700,
-                fontSize: 14,
-                cursor: "pointer",
-              }}
-            >
-              {name === "chats" ? "Чаты" : "Звонки"}
-            </button>
-          ))}
-        </div>
+        <h1 style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 200, fontSize: isMobile ? 22 : 28, color: "#fff", margin: 0, letterSpacing: -0.5 }}>Чаты</h1>
       </div>
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden", background: "#f8fafc" }}>
         {showList && (
           <aside
-            className="keep-nunito"
             style={{
               width: isMobile ? "100%" : 360,
               flexShrink: 0,
@@ -142,13 +57,18 @@ export function ChatsScreen() {
               padding: isMobile ? 0 : 12,
             }}
           >
-            {CHATS.map((chat) => {
+            {chats.length === 0 && (
+              <div style={{ padding: 40, textAlign: "center", fontFamily: "Montserrat, sans-serif", fontSize: 14, color: "#9ca3af" }}>
+                Нет чатов. Присоединитесь к сбору, чтобы появился чат.
+              </div>
+            )}
+            {chats.map((chat) => {
               const isActive = chat.id === activeChatId;
 
               return (
                 <button
                   key={chat.id}
-                  onClick={() => setActiveChatId(chat.id)}
+                  onClick={() => { setActiveChatId(chat.id); if (isMobile) setActiveChatId(chat.id); }}
                   style={{
                     width: "100%",
                     textAlign: "left",
@@ -157,7 +77,7 @@ export function ChatsScreen() {
                     padding: isMobile ? "12px 16px" : "12px 14px",
                     gap: 12,
                     border: "none",
-                    borderRadius: isMobile ? 0 : 12,
+                    borderRadius: isMobile ? 0 : 8,
                     marginBottom: isMobile ? 0 : 8,
                     background: isActive ? "#eef7f5" : isMobile ? "#fff" : "#f8fafc",
                     borderBottom: isMobile ? "1px solid #f3f4f6" : "none",
@@ -172,7 +92,7 @@ export function ChatsScreen() {
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
                     <span style={{ fontFamily: "Montserrat, sans-serif", fontSize: 11, color: "#9ca3af" }}>{chat.time}</span>
                     {chat.unread > 0 && (
-                      <div style={{ minWidth: 20, height: 20, borderRadius: 10, padding: "0 6px", background: ACCENT, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ minWidth: 20, height: 20, borderRadius: 6, padding: "0 6px", background: ACCENT, display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <span style={{ fontFamily: "Montserrat, sans-serif", fontSize: 11, color: "#fff", fontWeight: 700 }}>{chat.unread}</span>
                       </div>
                     )}
@@ -199,13 +119,13 @@ export function ChatsScreen() {
             </div>
 
             <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "12px" : "16px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-              {messages.map((message) => (
+              {activeMessages.map((message) => (
                 <div key={message.id} style={{ display: "flex", justifyContent: message.fromMe ? "flex-end" : "flex-start" }}>
                   <div
                     style={{
                       maxWidth: "75%",
                       padding: "10px 12px",
-                      borderRadius: 12,
+                      borderRadius: 8,
                       background: message.fromMe ? ACCENT : "#fff",
                       color: message.fromMe ? "#fff" : "#111827",
                       boxShadow: message.fromMe ? "none" : "0 1px 2px rgba(0,0,0,0.06)",
@@ -222,18 +142,22 @@ export function ChatsScreen() {
               <input
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
                 placeholder="Написать сообщение..."
                 style={{
                   flex: 1,
                   border: "1px solid #d1d5db",
-                  borderRadius: 10,
+                  borderRadius: 6,
                   padding: "10px 12px",
                   outline: "none",
                   fontFamily: "Montserrat, sans-serif",
                   fontSize: 16,
                 }}
               />
-              <button style={{ width: 40, borderRadius: 10, border: "none", background: ACCENT, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+              <button
+                onClick={handleSend}
+                style={{ width: 40, borderRadius: 6, border: "none", background: ACCENT, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              >
                 <Send size={16} />
               </button>
             </div>

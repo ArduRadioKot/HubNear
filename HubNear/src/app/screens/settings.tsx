@@ -9,7 +9,7 @@ const SETTINGS_ITEMS = [
   { icon: Moon, label: "Тёмная тема", desc: "Скоро" },
   { icon: Globe, label: "Язык", desc: "Русский" },
   { icon: Shield, label: "Конфиденциальность", desc: "Кто видит ваш профиль" },
-  { icon: Smartphone, label: "О приложении", desc: "dViz v0.0.1" },
+  { icon: Smartphone, label: "О приложении", desc: "DeVIZ v0.0.1" },
 ];
 
 export function SettingsScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
@@ -39,7 +39,7 @@ export function SettingsScreen({ onNavigate }: { onNavigate: (s: Screen) => void
         <div
           style={{
             background: "#fff",
-            borderRadius: isMobile ? 0 : 16,
+            borderRadius: isMobile ? 0 : 12,
             overflow: "hidden",
           }}
         >
@@ -63,7 +63,7 @@ export function SettingsScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                 style={{
                   width: 40,
                   height: 40,
-                  borderRadius: 10,
+                  borderRadius: 8,
                   background: ACCENT + "15",
                   display: "flex",
                   alignItems: "center",
