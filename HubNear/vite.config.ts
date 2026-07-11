@@ -19,6 +19,14 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 8000,
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        app: path.resolve(__dirname, 'app/index.html'),
+      },
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -29,24 +37,24 @@ export default defineConfig({
         name: 'DeVIZ — HubNear',
         short_name: 'DeVIZ',
         description: 'Мобильный сервис для быстрых сборов на активности рядом',
-        start_url: '/',
+        start_url: '/app/',
         display: 'standalone',
         background_color: '#116F5F',
         theme_color: '#116F5F',
         orientation: 'portrait-primary',
         icons: [
           {
-            src: '/pwa-192x192.png',
+            src: '/app/pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/pwa-512x512.png',
+            src: '/app/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: '/pwa-512x512.png',
+            src: '/app/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',

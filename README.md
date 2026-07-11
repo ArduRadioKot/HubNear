@@ -204,10 +204,9 @@ npm install
 npm run build
 cd ..
 
-# Скопировать файлы
-sudo mkdir -p /var/www/ecocheck/landing /var/www/ecocheck/app
-sudo cp -r HubNear/dist/* /var/www/ecocheck/app/
-sudo cp -r landing/* /var/www/ecocheck/landing/
+# Скопировать файлы (лендинг + приложение)
+sudo mkdir -p /var/www/ecocheck
+sudo cp -r HubNear/dist/* /var/www/ecocheck/
 sudo chown -R www-data:www-data /var/www/ecocheck
 ```
 
@@ -273,10 +272,7 @@ docker compose logs -f api
 
 # Пересобрать фронтенд после изменений
 cd HubNear && npm run build
-sudo cp -r dist/* /var/www/ecocheck/app/
-
-# Обновить лендинг после изменений
-sudo cp -r landing/* /var/www/ecocheck/landing/
+sudo cp -r dist/* /var/www/ecocheck/
 
 # Перезапустить nginx
 sudo systemctl reload nginx
