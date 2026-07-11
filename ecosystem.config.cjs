@@ -8,9 +8,12 @@ module.exports = {
       env: {
         NODE_ENV: "production",
       },
-      max_memory_restart: "256M",
+      max_memory_restart: "512M",
       autorestart: true,
-      restart_delay: 3000,
+      restart_delay: 5000,
+      max_restarts: 10,
+      min_uptime: 10000,
+      watch: false,
     },
     {
       name: "backend",
