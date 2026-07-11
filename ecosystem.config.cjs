@@ -14,6 +14,7 @@ module.exports = {
       max_restarts: 10,
       min_uptime: 10000,
       watch: false,
+      prestart_script: "npm run build",
     },
     {
       name: "backend",
